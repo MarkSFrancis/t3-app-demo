@@ -2,9 +2,38 @@
 
 <img width="1758" alt="turbo2" src="https://user-images.githubusercontent.com/51714798/213819392-33e50db9-3e38-4c51-9a22-03abe5e48f3d.png">
 
-## About
+## Getting Started
 
-Ever wondered how to migrate your T3 application into a monorepo? Stop right here! This is the perfect starter repo to get you running with the perfect stack!
+### Prerequisites
+
+- [Node.js](https://nodejs.org/en/)
+- [pnpm](https://pnpm.io/)
+
+### Installation
+
+1. Clone the repo
+1. Open a terminal in the root directory
+1. Install dependencies
+   ```sh
+   pnpm install
+   ```
+1. Initialize Expo Go
+   ```sh
+   pnpm --filter expo dev
+   ```
+1. Start the NextJS app in dev mode
+   ```sh
+   pnpm --filter nextjs dev
+   ```
+1. Open the NextJS app in your browser by opening [http://localhost:3000](http://localhost:3000) in your browser
+1. Start the Expo app in dev mode. 
+   > **Note**
+   > You need to have the NextJS app running for this to work, as the app uses the NextJS API
+   ```sh
+   pnpm --filter expo dev
+   ```
+
+## Architecture
 
 It uses [Turborepo](https://turborepo.org/) and contains:
 
@@ -13,7 +42,7 @@ It uses [Turborepo](https://turborepo.org/) and contains:
   └─ workflows
         └─ CI with pnpm cache setup
 .vscode
-  └─ Recommended extensions and settings for VSCode users
+  └─ Recommended settings for VSCode users
 apps
   ├─ expo
   |   ├─ Expo SDK 48
@@ -35,74 +64,13 @@ packages
      └─ typesafe db-calls using Prisma
 ```
 
-## FAQ
+## Updating the database
 
-### Can you include Solito?
+If you want to update the database, you can do so by editing the `schema.prisma` file in the `packages/db` folder. Then, you can run the following command to update the database:
 
-No. Solito will not be included in this repo. It is a great tool if you want to share code between your Next.js and Expo app. However, the main purpose of this repo is not the integration between Next.js and Expo - it's the codesplitting of your T3 App into a monorepo, the Expo app is just a bonus example of how you can utilize the monorepo with multiple apps but can just as well be any app such as Vite, Electron, etc.
-
-Integrating Solito into this repo isn't hard, and there are a few [offical templates](https://github.com/nandorojo/solito/tree/master/example-monorepos) by the creators of Solito that you can use as a reference.
-
-### What auth solution should I use instead of Next-Auth.js for Expo?
-
-I've left this kind of open for you to decide. Some options are [Clerk](https://clerk.dev), [Supabase Auth](https://supabase.com/docs/guides/auth), [Firebase Auth](https://firebase.google.com/docs/auth/) or [Auth0](https://auth0.com/docs). Note that if you're dropping the Expo app for something more "browser-like", you can still use Next-Auth.js for those. [See an example in a Plasmo Chrome Extension here](https://github.com/t3-oss/create-t3-turbo/tree/chrome/apps/chrome).
-
-The Clerk.dev team even made an [official template repository](https://github.com/clerkinc/t3-turbo-and-clerk) integrating Clerk.dev with this repo.
-
-### Does this pattern leak backend code to my client applications?
-
-No, it does not. The `api` package should only be a production dependency in the Next.js application where it's served. The Expo app, and all other apps you may add in the future, should only add the `api` package as a dev dependency. This lets you have full typesafety in your client applications, while keeping your backend code safe.
-
-If you need to share runtime code between the client and server, such as input validation schemas, you can create a separate `shared` package for this and import on both sides.
-
-## Quick Start
-
-To get it running, follow the steps below:
-
-### Setup dependencies
-
-```diff
-# Install dependencies
-pnpm i
-
-# In packages/db/prisma update schema.prisma provider to use sqlite
-# or use your own database provider
-- provider = "postgresql"
-+ provider = "sqlite"
-
-# Configure environment variables.
-# There is an `.env.example` in the root directory you can use for reference
-cp .env.example .env
-
-# Push the Prisma schema to your database
+```sh
 pnpm db:push
 ```
-
-### Configure Expo `dev`-script
-
-#### Use iOS Simulator
-
-1. Make sure you have XCode and XCommand Line Tools installed [as shown on expo docs](https://docs.expo.dev/workflow/ios-simulator/).
-   > **NOTE:** If you just installed XCode, or if you have updated it, you need to open the simulator manually once. Run `npx expo start` in the root dir, and then enter `I` to launch Expo Go. After the manual launch, you can run `pnpm dev` in the root directory.
-
-```diff
-+  "dev": "expo start --ios",
-```
-
-3. Run `pnpm dev` at the project root folder.
-
-> **TIP:** It might be easier to run each app in separate terminal windows so you get the logs from each app separately. This is also required if you want your terminals to be interactive, e.g. to access the Expo QR code. You can run `pnpm --filter expo dev` and `pnpm --filter nextjs dev` to run each app in a separate terminal window.
-
-#### For Android
-
-1. Install Android Studio tools [as shown on expo docs](https://docs.expo.dev/workflow/android-studio-emulator/).
-2. Change the `dev` script at `apps/expo/package.json` to open the Android emulator.
-
-```diff
-+  "dev": "expo start --android",
-```
-
-3. Run `pnpm dev` at the project root folder.
 
 ## Deployment
 
@@ -110,7 +78,7 @@ pnpm db:push
 
 #### Prerequisites
 
-_We do not recommend deploying a SQLite database on serverless environments since the data wouldn't be persisted. I provisioned a quick Postgresql database on [Railway](https://railway.app), but you can of course use any other database provider. Make sure the prisma schema is updated to use the correct database._
+_We do not recommend deploying a SQLite database on serverless environments since the data wouldn't be persisted. Make sure the prisma schema is updated to use the correct database._
 
 **Please note that the Next.js application with tRPC must be deployed in order for the Expo app to communicate with the server in a production environment.**
 
@@ -132,7 +100,7 @@ Let's deploy the Next.js application to [Vercel](https://vercel.com/). If you ha
 
 Deploying your Expo application works slightly differently compared to Next.js on the web. Instead of "deploying" your app online, you need to submit production builds of your app to the app stores, like [Apple App Store](https://www.apple.com/app-store/) and [Google Play](https://play.google.com/store/apps). You can read the full [Distributing your app](https://docs.expo.dev/distribution/introduction/), including best practices, in the Expo docs.
 
-1. Make sure to modify the `getBaseUrl` function to point to your backend's production URL:
+1. Make sure to modify the [`getBaseUrl`](/apps/expo/src/utils/api.tsx) function to point to your backend's production URL:
 
 https://github.com/t3-oss/create-t3-turbo/blob/656965aff7db271e5e080242c4a3ce4dad5d25f8/apps/expo/src/utils/api.tsx#L20-L37
 
@@ -194,8 +162,20 @@ https://github.com/t3-oss/create-t3-turbo/blob/656965aff7db271e5e080242c4a3ce4da
 
 9. Done! Now that you have created your production build, submitted it to the stores, and installed EAS Update, you are ready for anything!
 
+## FAQ
+
+### Can you include Solito?
+
+No. Solito will not be included in this repo. It is a great tool if you want to share code between your Next.js and Expo app. However, the main purpose of this repo is not the integration between Next.js and Expo - it's the codesplitting of your T3 App into a monorepo, the Expo app is just a bonus example of how you can utilize the monorepo with multiple apps but can just as well be any app such as Vite, Electron, etc.
+
+Integrating Solito into this repo isn't hard, and there are a few [offical templates](https://github.com/nandorojo/solito/tree/master/example-monorepos) by the creators of Solito that you can use as a reference.
+
+### What auth solution should I use instead of Next-Auth.js for Expo?
+
+I've left this kind of open for you to decide. Some options are [Clerk](https://clerk.dev), [Supabase Auth](https://supabase.com/docs/guides/auth), [Firebase Auth](https://firebase.google.com/docs/auth/) or [Auth0](https://auth0.com/docs). Note that if you're dropping the Expo app for something more "browser-like", you can still use Next-Auth.js for those. [See an example in a Plasmo Chrome Extension here](https://github.com/t3-oss/create-t3-turbo/tree/chrome/apps/chrome).
+
+The Clerk.dev team even made an [official template repository](https://github.com/clerkinc/t3-turbo-and-clerk) integrating Clerk.dev with this repo.
+
 ## References
 
-The stack originates from [create-t3-app](https://github.com/t3-oss/create-t3-app).
-
-A [blog post](https://jumr.dev/blog/t3-turbo) where I wrote how to migrate a T3 app into this.
+The stack originates from [create-t3-turbo](https://github.com/t3-oss/create-t3-turbo).
